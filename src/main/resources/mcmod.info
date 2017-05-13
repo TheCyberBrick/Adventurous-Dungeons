@@ -1,0 +1,13 @@
+[{
+    "modid": "adventurous_dungeons",
+	"name": "Adventurous Dungeons",
+	"description": "N/A",
+	"version": "${version}",
+	"mcversion": "${mcversion}",
+	"url": "N/A",
+	"updateUrl": "",
+	"authorList": [ "TheCyberBrick" ],
+	"credits": "TheCyberBrick",
+	"screenshots": [],
+	"dependencies": []
+}]

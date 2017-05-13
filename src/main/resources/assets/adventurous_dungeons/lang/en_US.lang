@@ -1,0 +1,84 @@
+### Script components
+# Bool
+script_component.adventurous_dungeons.equals=Equals
+script_component.adventurous_dungeons.is_null=Is Null
+script_component.adventurous_dungeons.intersects_aabb=Intersects AABB
+script_component.adventurous_dungeons.bool_and=&&
+script_component.adventurous_dungeons.bool_or=||
+script_component.adventurous_dungeons.greater_equal=>=
+script_component.adventurous_dungeons.greater=>
+script_component.adventurous_dungeons.less_equal=<=
+script_component.adventurous_dungeons.less=<
+script_component.adventurous_dungeons.bool_not=Invert Boolean
+
+# Entity
+script_component.adventurous_dungeons.create_item_entity=Create Item Entity
+script_component.adventurous_dungeons.spawn_entity=Spawn Entity
+script_component.adventurous_dungeons.get_entity_bounds=Entity Bounds
+
+# Item
+script_component.adventurous_dungeons.create_item_stack=Create Item Stack
+script_component.adventurous_dungeons.get_item_stack_count=Get Item Stack Count
+script_component.adventurous_dungeons.get_item_stack_item=Get Item Stack Item
+script_component.adventurous_dungeons.set_item_stack_count=Set Item Stack Count
+script_component.adventurous_dungeons.get_item_stack_meta=Get Item Stack Meta
+script_component.adventurous_dungeons.set_item_stack_meta=Set Item Stack Meta
+script_component.adventurous_dungeons.get_item_stack=Get Item Stack
+script_component.adventurous_dungeons.set_item_stack=Set Item Stack
+script_component.adventurous_dungeons.get_player_item_holder=Get Player Inventory Item
+script_component.adventurous_dungeons.get_block_item_holder=Get Block Inventory Item
+script_component.adventurous_dungeons.get_player_held_item_holder=Get Player Held Item
+script_component.adventurous_dungeons.get_entity_item_item_holder=Get Item Entity Item
+
+# Math
+script_component.adventurous_dungeons.add_vec=Add Vectors
+script_component.adventurous_dungeons.div_vec=Divide Vectors
+script_component.adventurous_dungeons.floor_vec=Floor Vector
+script_component.adventurous_dungeons.ceil_vec=Ceil Vector
+script_component.adventurous_dungeons.length_vec=Vector Length
+script_component.adventurous_dungeons.mul_vec=Multiply Vectors
+script_component.adventurous_dungeons.sub_vec=Subtract Vectors
+script_component.adventurous_dungeons.to_vec_double=Vec3i -> Vec3d
+script_component.adventurous_dungeons.to_vec_int=Vec3d -> Vec3i
+script_component.adventurous_dungeons.create_vec=Create Vector
+script_component.adventurous_dungeons.add_double=Add
+script_component.adventurous_dungeons.ceil_double=Ceil
+script_component.adventurous_dungeons.div_double=Divide
+script_component.adventurous_dungeons.floor_double=Floor
+script_component.adventurous_dungeons.mul_double=Multiply
+script_component.adventurous_dungeons.sub_double=Subtract
+script_component.adventurous_dungeons.int_to_double=Int to Double
+script_component.adventurous_dungeons.double_to_int=Double to Int
+script_component.adventurous_dungeons.add_int=Add
+script_component.adventurous_dungeons.sub_int=Subtract
+script_component.adventurous_dungeons.mul_int=Multiply
+script_component.adventurous_dungeons.div_int=Divide
+
+# Triggers
+script_component.adventurous_dungeons.entity_area_trigger=Entity Area Trigger
+script_component.adventurous_dungeons.block_activate_trigger=Block Activate Trigger
+script_component.adventurous_dungeons.tick_trigger=Tick Trigger
+
+# Constants
+script_component.adventurous_dungeons.block_state_constant=Block State
+script_component.adventurous_dungeons.dungeon_component=Dungeon Component
+script_component.adventurous_dungeons.item_stack_constant=Item Stack
+script_component.adventurous_dungeons.string_constant=String
+script_component.adventurous_dungeons.int_constant=Integer
+script_component.adventurous_dungeons.double_constant=Double
+script_component.adventurous_dungeons.bool_constant=Boolean
+script_component.adventurous_dungeons.dir_constant=Direction
+
+# Misc
+script_component.adventurous_dungeons.dungeon_area=Dungeon Area
+script_component.adventurous_dungeons.dungeon_entities=Dungeon Entities
+script_component.adventurous_dungeons.if_else=If Else
+script_component.adventurous_dungeons.iterator=Iterator
+script_component.adventurous_dungeons.merger=Merger
+script_component.adventurous_dungeons.set_blocks=Set Blocks
+script_component.adventurous_dungeons.string_combiner=String Combiner
+script_component.adventurous_dungeons.write_to_chat=Write to Chat
+script_component.adventurous_dungeons.iterable=Create Iterable
+script_component.adventurous_dungeons.duplicator=Duplicator
+script_component.adventurous_dungeons.create_aabb=Create AABB
+script_component.adventurous_dungeons.get_block_state=Get Block
