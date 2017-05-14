@@ -51,16 +51,24 @@ public abstract class EventTriggerSC<T extends DungeonEvent> extends DungeonScri
 
 	@Override
 	public final void run() throws ScriptException {
+		boolean run = false;
 		if(this.triggerEvent != null) {
 			T event = this.triggerEvent;
 			this.triggerEvent = null;
-			this.runTrigger(event);
-		} else {
+			run = this.runTrigger(event);
+		}
+		if(!run) {
 			for(OutputPort<?> out : this.getOutputs()) {
 				this.ignore(out);
 			}
 		}
 	}
 
-	protected abstract void runTrigger(T event) throws ScriptException;
+	/**
+	 * Called whenever the specified dungeon event is fired
+	 * @param event
+	 * @return Whether the component was run or not
+	 * @throws ScriptException
+	 */
+	protected abstract boolean runTrigger(T event) throws ScriptException;
 }

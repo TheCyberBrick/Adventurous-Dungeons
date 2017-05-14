@@ -40,11 +40,12 @@ public class BlockActivateTriggerSC extends EventTriggerSC<BlockActivateEvent> {
 	}
 
 	@Override
-	protected void runTrigger(BlockActivateEvent event) throws ScriptException {
+	protected boolean runTrigger(BlockActivateEvent event) throws ScriptException {
 		this.put(this.out_player, event.getPlayer());
 		this.put(this.out_pos, event.getPos());
 		this.put(this.out_block_pos, event.getBlockPos());
 		this.put(this.out_item, event.getItem());
 		this.put(this.out_offhand, event.getHand() == EnumHand.OFF_HAND);
+		return true;
 	}
 }

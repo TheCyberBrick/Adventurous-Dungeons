@@ -34,7 +34,9 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentTranslation;
 import tcb.adventurousdungeons.AdventurousDungeons;
 import tcb.adventurousdungeons.ModInfo;
+import tcb.adventurousdungeons.api.dungeon.IDungeon;
 import tcb.adventurousdungeons.api.dungeon.component.ILocalDungeonComponent;
+import tcb.adventurousdungeons.api.dungeon.component.impl.ScriptDC;
 import tcb.adventurousdungeons.api.script.IDungeonScriptComponent;
 import tcb.adventurousdungeons.api.script.IScriptComponent;
 import tcb.adventurousdungeons.api.script.OutputPort;
@@ -44,14 +46,14 @@ import tcb.adventurousdungeons.api.script.gui.GuiScriptComponent;
 import tcb.adventurousdungeons.api.script.impl.constants.BlockStateConstantSC;
 import tcb.adventurousdungeons.api.script.impl.constants.DungeonComponentConstantSC;
 import tcb.adventurousdungeons.api.script.impl.constants.ItemStackConstantSC;
-import tcb.adventurousdungeons.api.storage.StorageID;
 import tcb.adventurousdungeons.common.item.ItemComponentSelection;
 import tcb.adventurousdungeons.common.network.common.MessageEditDungeonScript;
 import tcb.adventurousdungeons.util.CatmullRomSpline;
 
 public class GuiEditScript extends GuiScreen {
 	private final Script script;
-	private final StorageID dungeonID, scriptID;
+	private final IDungeon dungeon;
+	private final ScriptDC dungeonScriptComponent;
 	private final LinkedHashMap<IScriptComponent, GuiScriptComponent> components = new LinkedHashMap<>();
 
 	private float x, xOffset, y, yOffset;
@@ -67,10 +69,10 @@ public class GuiEditScript extends GuiScreen {
 	private OutputPort<?> splineDraggingPort;
 	private int splineDraggingCtrlPoint;
 
-	public GuiEditScript(StorageID dungeonID, StorageID scriptID, Script script) {
+	public GuiEditScript(IDungeon dungeon, ScriptDC dungeonScriptComponent, Script script) {
 		this.script = script;
-		this.dungeonID = dungeonID;
-		this.scriptID = scriptID;
+		this.dungeon = dungeon;
+		this.dungeonScriptComponent = dungeonScriptComponent;
 
 		//this.script.addComponent(new BlockActivateTriggerSC(this.script, "block_activate"));
 		//this.script.addComponent(new SetBlocksSC(this.script, "set_blocks"));
@@ -133,6 +135,7 @@ public class GuiEditScript extends GuiScreen {
 		this.script.addComponent(component);
 		if(component instanceof IDungeonScriptComponent) {
 			this.components.put(component, ((IDungeonScriptComponent)component).getComponentGui(this));
+			((IDungeonScriptComponent)component).setDungeonComponent(this.dungeonScriptComponent);
 		}
 	}
 
@@ -577,7 +580,7 @@ public class GuiEditScript extends GuiScreen {
 		super.actionPerformed(button);
 
 		if(button.id == 0) {
-			AdventurousDungeons.getNetwork().sendToServer(MessageEditDungeonScript.createServerbound(this.dungeonID, this.scriptID, this.script));
+			AdventurousDungeons.getNetwork().sendToServer(MessageEditDungeonScript.createServerbound(this.dungeon.getID(), this.dungeonScriptComponent.getID(), this.script));
 		}
 
 		if(button.id == 1) {
@@ -588,7 +591,7 @@ public class GuiEditScript extends GuiScreen {
 					ILocalDungeonComponent selected = ((ItemComponentSelection)stack.getItem()).getSelectedComponent(player.world, stack);
 					if(selected == null) {
 						this.mc.ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation(ModInfo.ID + ".gui.no_component_selection"));
-					} else if(!selected.getDungeon().getID().equals(this.dungeonID)) {
+					} else if(selected.getDungeon() != this.dungeon) {
 						this.mc.ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation(ModInfo.ID + ".gui.component_wrong_dungeon"));
 					} else {
 						IDungeonScriptComponent component = new DungeonComponentConstantSC(this.script, selected.getName(), selected);

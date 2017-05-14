@@ -30,11 +30,12 @@ public class TickTriggerSC extends EventTriggerSC<DungeonUpdateEvent> {
 	}
 
 	@Override
-	protected void runTrigger(DungeonUpdateEvent event) throws ScriptException {
+	protected boolean runTrigger(DungeonUpdateEvent event) throws ScriptException {
 		if(event.getTickPhase() == Phase.START) {
 			this.ignore(this.out_post);
 		} else {
 			this.ignore(this.out_pre);
 		}
+		return true;
 	}
 }

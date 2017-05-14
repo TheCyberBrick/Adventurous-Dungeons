@@ -143,7 +143,9 @@ public class LocalStorageHandlerImpl implements ILocalStorageHandler {
 					ILocalStorage localStorage = this.getLocalStorage(ref.getID());
 					if(localStorage != null && localStorage.getBoundingBox() != null && type.isAssignableFrom(localStorage.getClass()) && localStorage.getBoundingBox().intersectsWith(aabb)
 							&& (filter == null || filter.apply((T) localStorage))) {
-						storages.add((T) localStorage);
+						if(!storages.contains(localStorage)) {
+							storages.add((T) localStorage);
+						}
 					}
 				}
 			}

@@ -49,10 +49,10 @@ script_component.adventurous_dungeons.mul_double=Multiply
 script_component.adventurous_dungeons.sub_double=Subtract
 script_component.adventurous_dungeons.int_to_double=Int to Double
 script_component.adventurous_dungeons.double_to_int=Double to Int
-script_component.adventurous_dungeons.add_int=Add
-script_component.adventurous_dungeons.sub_int=Subtract
-script_component.adventurous_dungeons.mul_int=Multiply
-script_component.adventurous_dungeons.div_int=Divide
+script_component.adventurous_dungeons.add_int=Add (Integer)
+script_component.adventurous_dungeons.sub_int=Subtract (Integer)
+script_component.adventurous_dungeons.mul_int=Multiply (Integer)
+script_component.adventurous_dungeons.div_int=Divide (Integer)
 
 # Triggers
 script_component.adventurous_dungeons.entity_area_trigger=Entity Area Trigger

@@ -276,7 +276,7 @@ public abstract class ScriptComponent implements IScriptComponent {
 				//inputComponent.values[inputPort.getConnectedPort().getID()] = null;
 			}
 		}
-
+		
 		while(multiInput == null || multiInput.hasNext()) {
 			if(multiInput != null) {
 				this.values[multiInputPort.getID()] = multiInput.next();

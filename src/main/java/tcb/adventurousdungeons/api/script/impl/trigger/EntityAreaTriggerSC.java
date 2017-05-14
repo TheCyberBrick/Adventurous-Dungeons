@@ -38,11 +38,13 @@ public class EntityAreaTriggerSC extends EventTriggerSC<EntityAreaTriggerEvent> 
 	}
 
 	@Override
-	protected void runTrigger(EntityAreaTriggerEvent event) throws ScriptException {
+	protected boolean runTrigger(EntityAreaTriggerEvent event) throws ScriptException {
 		if(event.getComponent() == this.get(this.in)) {
 			this.put(this.out_entity, event.getEntity());
 			this.put(this.out_aabb, event.getComponent().getBounds());
 			this.put(this.out_enter, event.isEntering());
+			return true;
 		}
+		return false;
 	}
 }
