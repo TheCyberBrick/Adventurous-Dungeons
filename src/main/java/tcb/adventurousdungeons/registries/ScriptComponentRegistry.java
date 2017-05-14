@@ -250,6 +250,9 @@ public class ScriptComponentRegistry implements IScriptComponentRegistry {
 		INSTANCE.registerFactoryGui(DoubleConstantSC.class, new DoubleConstantSC.GuiFactory());
 		INSTANCE.registerFactoryGui(BoolConstantSC.class, new BoolConstantSC.GuiFactory());
 		INSTANCE.registerFactoryGui(DirectionConstantSC.class, new DirectionConstantSC.GuiFactory());
+		INSTANCE.registerFactoryGui(BlockStateConstantSC.class, new BlockStateConstantSC.GuiFactory());
+		INSTANCE.registerFactoryGui(DungeonComponentConstantSC.class, new DungeonComponentConstantSC.GuiFactory());
+		INSTANCE.registerFactoryGui(ItemStackConstantSC.class, new ItemStackConstantSC.GuiFactory());
 
 		//Misc
 		registerSimpleFactoryGui(DungeonAreaSC.class, (s, n) -> new DungeonAreaSC(s, n));

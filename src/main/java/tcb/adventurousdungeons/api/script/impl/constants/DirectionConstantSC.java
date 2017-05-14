@@ -120,8 +120,8 @@ public class DirectionConstantSC extends DungeonScriptComponent {
 				}
 			}
 
-			this.buttonList.add(new GuiButton(0, 2, 77, 80, 20, "Create"));
-
+			this.addCreateSaveButton(2, 77, 80, 20);
+			
 			this.addNameField();
 		}
 

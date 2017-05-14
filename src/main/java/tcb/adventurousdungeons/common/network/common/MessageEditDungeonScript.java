@@ -14,6 +14,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import tcb.adventurousdungeons.api.dungeon.IDungeon;
 import tcb.adventurousdungeons.api.dungeon.component.IDungeonComponent;
 import tcb.adventurousdungeons.api.dungeon.component.impl.ScriptDC;
+import tcb.adventurousdungeons.api.script.IDungeonScriptComponent;
+import tcb.adventurousdungeons.api.script.IScriptComponent;
 import tcb.adventurousdungeons.api.script.Script;
 import tcb.adventurousdungeons.api.storage.ILocalStorage;
 import tcb.adventurousdungeons.api.storage.IWorldStorage;
@@ -34,8 +36,13 @@ public class MessageEditDungeonScript extends MessageBase {
 		this.scriptNbt = scriptNbt;
 	}
 
+	private MessageEditDungeonScript(StorageID dungeonID, StorageID scriptID) {
+		this.dungeonID = dungeonID;
+		this.scriptID = scriptID;
+	}
+
 	public static MessageEditDungeonScript createClientbound(ScriptDC script) {
-		return new MessageEditDungeonScript(script.getDungeon().getID(), script.getID(), script.getScriptNbtCopy());
+		return new MessageEditDungeonScript(script.getDungeon().getID(), script.getID());
 	}
 
 	public static MessageEditDungeonScript createServerbound(StorageID dungeonID, StorageID scriptID, Script script) {
@@ -47,7 +54,9 @@ public class MessageEditDungeonScript extends MessageBase {
 		try {
 			this.dungeonID = StorageID.readFromNBT(buf.readCompoundTag());
 			this.scriptID = StorageID.readFromNBT(buf.readCompoundTag());
-			this.scriptNbt = buf.readCompoundTag();
+			if(!buf.readBoolean()) {
+				this.scriptNbt = buf.readCompoundTag();
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -57,12 +66,15 @@ public class MessageEditDungeonScript extends MessageBase {
 	public void serialize(PacketBuffer buf) {
 		buf.writeCompoundTag(this.dungeonID.writeToNBT(new NBTTagCompound()));
 		buf.writeCompoundTag(this.scriptID.writeToNBT(new NBTTagCompound()));
-		buf.writeCompoundTag(this.scriptNbt);
+		buf.writeBoolean(this.scriptNbt == null);
+		if(this.scriptNbt != null) {
+			buf.writeCompoundTag(this.scriptNbt);
+		}
 	}
 
 	@Override
 	public IMessage process(MessageContext ctx) {
-		if(this.dungeonID != null && this.scriptID != null && this.scriptNbt != null) {
+		if(this.dungeonID != null && this.scriptID != null) {
 			if(ctx.side == Side.CLIENT) {
 				this.handleClientbound();
 			} else {
@@ -94,9 +106,25 @@ public class MessageEditDungeonScript extends MessageBase {
 	@SideOnly(Side.CLIENT)
 	private void handleClientbound() {
 		if(Minecraft.getMinecraft().currentScreen == null) {
-			Script script = new Script();
-			script.readFromNBT(this.scriptNbt);
-			Minecraft.getMinecraft().displayGuiScreen(new GuiEditScript(this.dungeonID, this.scriptID, script));
+			if(this.dungeonID != null && this.scriptID != null) {
+				World world = Minecraft.getMinecraft().world;
+				IWorldStorage worldStorage = WorldStorageImpl.getCapability(world);
+				ILocalStorage localStorage = worldStorage.getLocalStorageHandler().getLocalStorage(this.dungeonID);
+				if(localStorage instanceof IDungeon) {
+					IDungeon dungeon = (IDungeon) localStorage;
+					IDungeonComponent component = dungeon.getDungeonComponent(this.scriptID);
+					if(component instanceof ScriptDC) {
+						Script script = new Script();
+						script.readFromNBT(((ScriptDC)component).getScriptNbtCopy());
+						for(IScriptComponent scriptComponent : script.getComponents()) {
+							if(scriptComponent instanceof IDungeonScriptComponent) {
+								((IDungeonScriptComponent)scriptComponent).setDungeonComponent((ScriptDC) component);
+							}
+						}
+						Minecraft.getMinecraft().displayGuiScreen(new GuiEditScript(this.dungeonID, this.scriptID, script));
+					}
+				}
+			}
 		}
 	}
 }

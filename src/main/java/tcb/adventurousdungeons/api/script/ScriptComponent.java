@@ -177,7 +177,7 @@ public abstract class ScriptComponent implements IScriptComponent {
 			if(val == IGNORE) {
 				return null;
 			}
-			if(val != null && !callee.getDataType().isAssignableFrom(val.getClass())) {
+			if(val != null && !callee.getDataType().isAssignableFrom(val.getClass()) && !((OutputPort<T>)callee.getConnectedPort()).isMultiOutput()) {
 				throw new PortCastException(callee.getComponent(), callee, val.getClass(), callee.getDataType(), String.format("Failed to cast input value with type '%s' of port '%s', component '%s' to type '%s'", val.getClass().getSimpleName(), callee.getName(), callee.getComponent().getName(), callee.getDataType().getSimpleName()));
 			}
 			@SuppressWarnings("unchecked")
@@ -304,13 +304,18 @@ public abstract class ScriptComponent implements IScriptComponent {
 						if(!executedStack.contains(outputComponent)) {
 							if(outputPort.isMultiOutput() && value != null) {
 								Iterable<?> iterable = (Iterable<?>) value;
+								Set<ScriptComponent> multiOutputExecutedStack = new HashSet<>();
 								for(Object obj : iterable) {
-									outputComponent.execute(true, outputPort, obj, new HashSet<>(executedStack));
+									//Store executed components in a seperate set so that they can be executed multiple times
+									Set<ScriptComponent> separateStack = new HashSet<>(executedStack);
+									outputComponent.execute(true, outputPort, obj, separateStack);
+									multiOutputExecutedStack.addAll(separateStack);
 								}
+								//Add components that have been executed to stack
+								executedStack.addAll(multiOutputExecutedStack);
 							} else {
 								outputComponent.execute(true, outputPort, value, executedStack);
 							}
-							//executedStack.add(outputComponent);
 						}
 					}
 				}

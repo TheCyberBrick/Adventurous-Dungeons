@@ -1,6 +1,11 @@
 package tcb.adventurousdungeons.api.script.impl.constants;
 
+import java.util.function.Consumer;
+
+import javax.annotation.Nullable;
+
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.GlStateManager.DestFactor;
 import net.minecraft.client.renderer.GlStateManager.SourceFactor;
@@ -8,9 +13,14 @@ import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import tcb.adventurousdungeons.api.script.DungeonScriptComponent;
+import tcb.adventurousdungeons.api.script.IScriptComponent;
+import tcb.adventurousdungeons.api.script.IScriptComponentCreationGuiFactory;
 import tcb.adventurousdungeons.api.script.OutputPort;
 import tcb.adventurousdungeons.api.script.Script;
+import tcb.adventurousdungeons.api.script.gui.GuiCreateScriptComponent;
 import tcb.adventurousdungeons.api.script.gui.GuiScriptComponent;
 import tcb.adventurousdungeons.client.gui.GuiEditScript;
 
@@ -93,5 +103,25 @@ public class ItemStackConstantSC extends DungeonScriptComponent {
 				}
 			}
 		};
+	}
+
+	@SideOnly(Side.CLIENT)
+	public static class GuiFactory implements IScriptComponentCreationGuiFactory<ItemStackConstantSC> {
+		@Override
+		public GuiScreen getFactoryGui(GuiScreen parent, Consumer<IScriptComponent> add, Script script, @Nullable ItemStackConstantSC component, float x, float y) {
+			return new FactoryGui(parent, ItemStackConstantSC.class, add, script, component, x, y);
+		}
+	}
+
+	@SideOnly(Side.CLIENT)
+	public static class FactoryGui extends GuiCreateScriptComponent<ItemStackConstantSC> {
+		public FactoryGui(GuiScreen parent, Class<ItemStackConstantSC> componentType, Consumer<IScriptComponent> add, Script script, @Nullable ItemStackConstantSC component, float x, float y) {
+			super(parent, componentType, add, script, component, x, y);
+		}
+
+		@Override
+		protected ItemStackConstantSC create(Script script, String name) {
+			return new ItemStackConstantSC(script, name, this.getInputComponent().getItemStack());
+		}
 	}
 }

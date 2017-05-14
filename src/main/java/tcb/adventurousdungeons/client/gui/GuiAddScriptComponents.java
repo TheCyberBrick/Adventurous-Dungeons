@@ -45,7 +45,7 @@ public class GuiAddScriptComponents extends GuiScreen {
 		int yOff = 0;
 		for(Class<? extends IScriptComponent> component : ScriptComponentRegistry.INSTANCE.getRegisteredComponents()) {
 			IScriptComponentCreationGuiFactory<?> factory = ScriptComponentRegistry.INSTANCE.getFactoryGui(component);
-			if(factory != null) {
+			if(factory != null && !factory.isEditOnly()) {
 				this.buttonList.add(new GuiButton(id, 2 + xOff, 2 + yOff, I18n.format(ScriptComponentRegistry.INSTANCE.getUnlocalizedName(component))));
 				this.factories.add(factory);
 				id++;

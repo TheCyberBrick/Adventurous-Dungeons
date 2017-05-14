@@ -10,8 +10,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public interface IScriptComponentCreationGuiFactory<T extends IScriptComponent> {
 	/**
-	 * Returns a GUI that is used to create a new instance of a component.
-	 * Components must be added to the 'add' Consumer
+	 * Returns a GUI that is used to create a new instance of a component or edit an already existing component.
+	 * Components must be added using the 'add' {@link Consumer}
 	 * @param parent The parent GuiScreen
 	 * @param add The consumer to be used to add the new script component
 	 * @param script The script. <b>Do not add components here!</b>
@@ -22,4 +22,12 @@ public interface IScriptComponentCreationGuiFactory<T extends IScriptComponent> 
 	 */
 	@SideOnly(Side.CLIENT)
 	public GuiScreen getFactoryGui(GuiScreen parent, Consumer<IScriptComponent> add, Script script, @Nullable T component, float x, float y);
+
+	/**
+	 * Returns whether the GUI is for editing an already existing component only
+	 * @return
+	 */
+	public default boolean isEditOnly() {
+		return false;
+	}
 }

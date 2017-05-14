@@ -15,6 +15,7 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
@@ -590,7 +591,7 @@ public class GuiEditScript extends GuiScreen {
 					} else if(!selected.getDungeon().getID().equals(this.dungeonID)) {
 						this.mc.ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation(ModInfo.ID + ".gui.component_wrong_dungeon"));
 					} else {
-						IDungeonScriptComponent component = new DungeonComponentConstantSC(this.script, "dungeonComponent", selected);
+						IDungeonScriptComponent component = new DungeonComponentConstantSC(this.script, selected.getName(), selected);
 						this.addComponent(component);
 						component.setGuiX((this.res.getScaledWidth() / 2 - this.x) / this.scale);
 						component.setGuiY((this.res.getScaledHeight() / 2 - this.y) / this.scale);
@@ -606,11 +607,13 @@ public class GuiEditScript extends GuiScreen {
 			if(player != null) {
 				RayTraceResult ray = player.world.rayTraceBlocks(player.getPositionEyes(1), player.getPositionEyes(1).add(player.getLookVec().scale(6)), true);
 				IDungeonScriptComponent component;
+				IBlockState block;
 				if(ray != null && ray.typeOfHit == RayTraceResult.Type.BLOCK) {
-					this.addComponent(component = new BlockStateConstantSC(this.script, "blockState", player.world.getBlockState(ray.getBlockPos())));
+					block = player.world.getBlockState(ray.getBlockPos());
 				} else {
-					this.addComponent(component = new BlockStateConstantSC(this.script, "blockState", Blocks.AIR.getDefaultState()));
+					block = Blocks.AIR.getDefaultState();
 				}
+				this.addComponent(component = new BlockStateConstantSC(this.script, block.getBlock().getLocalizedName(), block));
 				component.setGuiX((this.res.getScaledWidth() / 2 - this.x) / this.scale);
 				component.setGuiY((this.res.getScaledHeight() / 2 - this.y) / this.scale);
 			}
@@ -621,7 +624,7 @@ public class GuiEditScript extends GuiScreen {
 			if(player != null) {
 				ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
 				if(stack != null) {
-					IDungeonScriptComponent component = new ItemStackConstantSC(this.script, "itemStack", stack);
+					IDungeonScriptComponent component = new ItemStackConstantSC(this.script, stack.getDisplayName(), stack);
 					component.setGuiX((this.res.getScaledWidth() / 2 - this.x) / this.scale);
 					component.setGuiY((this.res.getScaledHeight() / 2 - this.y) / this.scale);
 					this.addComponent(component);

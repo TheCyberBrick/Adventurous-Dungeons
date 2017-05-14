@@ -12,7 +12,7 @@ import tcb.adventurousdungeons.api.script.IScriptComponent;
 import tcb.adventurousdungeons.api.script.Script;
 
 public class ScriptDC extends DungeonComponentImpl {
-	protected static final DataParameter<Script> SCRIPT = ComponentDataManager.createKey(ScriptDC.class, ComponentDataSerializers.SCRIPT);
+	public static final DataParameter<Script> SCRIPT = ComponentDataManager.createKey(ScriptDC.class, ComponentDataSerializers.SCRIPT);
 
 	public ScriptDC(IDungeon dungeon) {
 		super(dungeon);

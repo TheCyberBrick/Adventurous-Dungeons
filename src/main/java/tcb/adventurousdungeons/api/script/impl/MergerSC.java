@@ -116,8 +116,8 @@ public class MergerSC extends DungeonScriptComponent {
 
 		@Override
 		public void initGui() {
-			this.buttonList.add(new GuiButton(0, 2, 108, 80, 20, "Create"));
-
+			this.addCreateSaveButton(2, 108, 80, 20);
+			
 			GuiTextField textFieldInputs = new GuiTextField(1, this.fontRendererObj, 2, 55, 80, 20);
 			this.addTextField(textFieldInputs);
 			GuiTextField textFieldDefaultInput = new GuiTextField(2, this.fontRendererObj, 2, 86, 80, 20);

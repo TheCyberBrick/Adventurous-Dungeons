@@ -97,8 +97,8 @@ public class IterableSC extends DungeonScriptComponent {
 
 		@Override
 		public void initGui() {
-			this.buttonList.add(new GuiButton(0, 2, 77, 80, 20, "Create"));
-
+			this.addCreateSaveButton(2, 77, 80, 20);
+			
 			GuiTextField textField = new GuiTextField(1, this.fontRendererObj, 2, 55, 80, 20);
 			this.addTextField(textField);
 

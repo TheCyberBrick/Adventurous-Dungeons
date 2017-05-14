@@ -6,7 +6,6 @@ import java.util.function.Consumer;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.nbt.NBTTagCompound;
@@ -30,8 +29,8 @@ import tcb.adventurousdungeons.api.script.gui.GuiCreateScriptComponent;
 public class StringCombinerSC extends DungeonScriptComponent {
 	private int numInputs;
 
-	private InputPort<String> separator;
-	private final List<InputPort<String>> inputs = new ArrayList<>();
+	private InputPort<Object> separator;
+	private final List<InputPort<Object>> inputs = new ArrayList<>();
 	private OutputPort<String> out;
 
 	public StringCombinerSC(Script script) {
@@ -49,11 +48,11 @@ public class StringCombinerSC extends DungeonScriptComponent {
 
 	@Override
 	protected void createPorts() {
-		this.inputs.add(this.in("in_0", String.class, true));
+		this.inputs.add(this.in("in_0", Object.class, true));
 		for(int i = 1; i < this.numInputs; i++) {
-			this.inputs.add(this.in("in_" + i, String.class, false));
+			this.inputs.add(this.in("in_" + i, Object.class, false));
 		}
-		this.separator = this.in("separator", String.class, false);
+		this.separator = this.in("separator", Object.class, false);
 		this.out = this.out("out", String.class);
 	}
 
@@ -61,11 +60,11 @@ public class StringCombinerSC extends DungeonScriptComponent {
 	protected void run() throws ScriptException {
 		String separator = null;
 		if(this.separator.isConnected()) {
-			separator = this.get(this.separator);
+			separator = this.get(this.separator).toString();
 		}
 		List<String> strings = new ArrayList<>();
-		for(InputPort<String> input : this.inputs) {
-			String val = this.get(input);
+		for(InputPort<Object> input : this.inputs) {
+			String val = this.get(input).toString();
 			if(val != null) {
 				strings.add(val);
 			}
@@ -112,7 +111,7 @@ public class StringCombinerSC extends DungeonScriptComponent {
 
 		@Override
 		public void initGui() {
-			this.buttonList.add(new GuiButton(0, 2, 77, 80, 20, "Create"));
+			this.addCreateSaveButton(2, 77, 80, 20);
 
 			GuiTextField textField = new GuiTextField(1, this.fontRendererObj, 2, 55, 80, 20);
 			this.addTextField(textField);

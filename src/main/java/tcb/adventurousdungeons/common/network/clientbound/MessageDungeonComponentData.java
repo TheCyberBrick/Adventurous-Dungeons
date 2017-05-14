@@ -77,15 +77,13 @@ public class MessageDungeonComponentData extends MessageBase {
 
 	@SideOnly(Side.CLIENT)
 	private void handleClientbound() {
-		if(Minecraft.getMinecraft().currentScreen == null) {
-			IWorldStorage worldStorage = WorldStorageImpl.getCapability(Minecraft.getMinecraft().world);
-			ILocalStorage localStorage = worldStorage.getLocalStorageHandler().getLocalStorage(this.dungeonID);
-			if(localStorage instanceof IDungeon) {
-				IDungeon dungeon = (IDungeon) localStorage;
-				IDungeonComponent dungeonComponent = dungeon.getDungeonComponent(this.componentID);
-				if(dungeonComponent != null) {
-					dungeonComponent.getDataManager().setEntryValues(this.dataManagerEntries);
-				}
+		IWorldStorage worldStorage = WorldStorageImpl.getCapability(Minecraft.getMinecraft().world);
+		ILocalStorage localStorage = worldStorage.getLocalStorageHandler().getLocalStorage(this.dungeonID);
+		if(localStorage instanceof IDungeon) {
+			IDungeon dungeon = (IDungeon) localStorage;
+			IDungeonComponent dungeonComponent = dungeon.getDungeonComponent(this.componentID);
+			if(dungeonComponent != null) {
+				dungeonComponent.getDataManager().setEntryValues(this.dataManagerEntries);
 			}
 		}
 	}

@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.math.Vec3d;
@@ -126,6 +128,15 @@ public abstract class DungeonScriptComponent extends ScriptComponent implements 
 				pts.add(MoreNBTUtils.readVec(splinePointsListNbt.getCompoundTagAt(k)));
 			}
 			this.setSplinePoints(port, pts);
+		}
+	}
+
+	@Override
+	public void setError(@Nullable String ex) {
+		super.setError(ex);
+
+		if(this.dungeonComponent != null) {
+			this.dungeonComponent.getDataManager().setDirty(ScriptDC.SCRIPT);
 		}
 	}
 }

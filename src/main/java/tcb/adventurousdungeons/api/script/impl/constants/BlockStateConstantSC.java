@@ -1,10 +1,15 @@
 package tcb.adventurousdungeons.api.script.impl.constants;
 
+import java.util.function.Consumer;
+
+import javax.annotation.Nullable;
+
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.BlockRendererDispatcher;
 import net.minecraft.client.renderer.GlStateManager;
@@ -17,8 +22,11 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tcb.adventurousdungeons.api.script.DungeonScriptComponent;
+import tcb.adventurousdungeons.api.script.IScriptComponent;
+import tcb.adventurousdungeons.api.script.IScriptComponentCreationGuiFactory;
 import tcb.adventurousdungeons.api.script.OutputPort;
 import tcb.adventurousdungeons.api.script.Script;
+import tcb.adventurousdungeons.api.script.gui.GuiCreateScriptComponent;
 import tcb.adventurousdungeons.api.script.gui.GuiScriptComponent;
 import tcb.adventurousdungeons.client.gui.GuiEditScript;
 
@@ -160,5 +168,25 @@ public class BlockStateConstantSC extends DungeonScriptComponent {
 				}
 			}
 		};
+	}
+
+	@SideOnly(Side.CLIENT)
+	public static class GuiFactory implements IScriptComponentCreationGuiFactory<BlockStateConstantSC> {
+		@Override
+		public GuiScreen getFactoryGui(GuiScreen parent, Consumer<IScriptComponent> add, Script script, @Nullable BlockStateConstantSC component, float x, float y) {
+			return new FactoryGui(parent, BlockStateConstantSC.class, add, script, component, x, y);
+		}
+	}
+
+	@SideOnly(Side.CLIENT)
+	public static class FactoryGui extends GuiCreateScriptComponent<BlockStateConstantSC> {
+		public FactoryGui(GuiScreen parent, Class<BlockStateConstantSC> componentType, Consumer<IScriptComponent> add, Script script, @Nullable BlockStateConstantSC component, float x, float y) {
+			super(parent, componentType, add, script, component, x, y);
+		}
+
+		@Override
+		protected BlockStateConstantSC create(Script script, String name) {
+			return new BlockStateConstantSC(script, name, this.getInputComponent().getBlockState());
+		}
 	}
 }

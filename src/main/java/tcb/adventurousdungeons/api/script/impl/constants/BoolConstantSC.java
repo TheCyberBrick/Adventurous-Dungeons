@@ -101,7 +101,8 @@ public class BoolConstantSC extends DungeonScriptComponent {
 			GuiButton buttonFalse = new GuiButton(2, 42, 55, 40, 20, "False");
 			buttonFalse.enabled = true;
 			this.buttonList.add(buttonFalse);
-			this.buttonList.add(new GuiButton(0, 2, 77, 80, 20, "Create"));
+			
+			this.addCreateSaveButton(2, 77, 80, 20);
 
 			if(this.getInputComponent() != null) {
 				if(this.getInputComponent().getBoolean()) {

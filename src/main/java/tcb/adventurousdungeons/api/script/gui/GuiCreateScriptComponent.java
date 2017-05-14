@@ -61,12 +61,32 @@ public abstract class GuiCreateScriptComponent<T extends IScriptComponent> exten
 	public void initGui() {
 		super.initGui();
 
-		this.buttonList.add(new GuiButton(0, 2, 44, 80, 20, "Create"));
-
+		this.addCreateSaveButton(2, 44, 80, 20);
 		this.addNameField();
 	}
 
+	protected int addCreateSaveButton(int x, int y, int width, int height) {
+		this.buttonList.add(new GuiButton(0, x, y, width, height, this.getInputComponent() != null ? "Save" : "Create"));
+		return 0;
+	}
+
 	protected int addNameField() {
+		int id = this.getUniqueButtonID();
+
+		this.buttonList.add(new GuiButton(id, 84, 22, 40, 20, "Reset"));
+		this.resetButtonId = id;
+
+		this.componentNameField = new GuiTextField(0, this.fontRendererObj, 2, 22, 80, 20);
+		if(this.getInputComponent() != null) {
+			this.componentNameField.setText(this.getInputComponent().getName());
+		} else {
+			this.componentNameField.setText(I18n.format(ScriptComponentRegistry.INSTANCE.getUnlocalizedName(this.componentType)));
+		}
+
+		return id;
+	}
+
+	protected int getUniqueButtonID() {
 		boolean[] takenIds = new boolean[this.buttonList.size()];
 		for(GuiButton button : this.buttonList) {
 			if(button.id >= 0 && button.id < this.buttonList.size()) {
@@ -79,16 +99,6 @@ public abstract class GuiCreateScriptComponent<T extends IScriptComponent> exten
 				id = i;
 			}
 		}
-		this.buttonList.add(new GuiButton(id, 84, 22, 40, 20, "Reset"));
-		this.resetButtonId = id;
-
-		this.componentNameField = new GuiTextField(0, this.fontRendererObj, 2, 22, 80, 20);
-		if(this.getInputComponent() != null) {
-			this.componentNameField.setText(this.getInputComponent().getName());
-		} else {
-			this.componentNameField.setText(I18n.format(ScriptComponentRegistry.INSTANCE.getUnlocalizedName(this.componentType)));
-		}
-
 		return id;
 	}
 
