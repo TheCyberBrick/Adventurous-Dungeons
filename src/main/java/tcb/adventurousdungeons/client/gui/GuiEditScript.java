@@ -233,8 +233,7 @@ public class GuiEditScript extends GuiScreen {
 							if(controlPoints != null) {
 								for(int i = 0; i < controlPoints.size(); i++) {
 									Vec3d ctrlPt = controlPoints.get(i);
-									if(mousePos.xCoord >= ctrlPt.xCoord - 3 && mousePos.xCoord <= ctrlPt.xCoord + 3
-											&& mousePos.yCoord >= ctrlPt.yCoord - 3 && mousePos.yCoord <= ctrlPt.yCoord + 3) {
+									if(mousePos.distanceTo(ctrlPt.addVector(x1, y1, 0)) <= 3) {
 										if(leftClick) {
 											this.splineDraggingCtrlPoint = i;
 											this.splineDraggingPort = port;
@@ -283,7 +282,7 @@ public class GuiEditScript extends GuiScreen {
 
 									int index = MathHelper.floor(((spline.getNodes().length - 3) * splineParameter));
 
-									controlPoints.add(index, mousePos);
+									controlPoints.add(index, mousePos.addVector(-x1, -y1, 0));
 									dungeonScriptComponent.setSplinePoints(port.getName(), controlPoints);
 
 									this.splineDraggingCtrlPoint = index;
@@ -339,6 +338,10 @@ public class GuiEditScript extends GuiScreen {
 			if(splineDraggingComponent != null) {
 				List<Vec3d> ctrlPoints = splineDraggingComponent.getSplinePoints(this.splineDraggingPort.getName());
 				if(ctrlPoints != null) {
+					GuiScriptComponent guiComponent = this.components.get(splineDraggingComponent);
+					float[] outputBounds = guiComponent.getRelativePortBounds(this.splineDraggingPort);
+					float portX = (outputBounds[2]) + guiComponent.getX();
+					float portY = (outputBounds[1] + outputBounds[3]) / 2.0F + guiComponent.getY();
 					ctrlPoints.remove(this.splineDraggingCtrlPoint);
 					float newX = this.getMouseX();
 					float newY = this.getMouseY();
@@ -347,7 +350,7 @@ public class GuiEditScript extends GuiScreen {
 						newX = (float)Math.round(newX / gridSize) * gridSize;
 						newY = (float)Math.round(newY / gridSize) * gridSize;
 					}
-					ctrlPoints.add(this.splineDraggingCtrlPoint, new Vec3d(newX, newY, 0));
+					ctrlPoints.add(this.splineDraggingCtrlPoint, new Vec3d(newX - portX, newY - portY, 0));
 					splineDraggingComponent.setSplinePoints(this.splineDraggingPort.getName(), ctrlPoints);
 				}
 			}
@@ -564,7 +567,10 @@ public class GuiEditScript extends GuiScreen {
 		if(port != null && port.getComponent() instanceof IDungeonScriptComponent) {
 			List<Vec3d> additionalPts = ((IDungeonScriptComponent) port.getComponent()).getSplinePoints(port.getName());
 			if(additionalPts != null) {
-				splinePtsList.addAll(additionalPts); //TODO
+				for(Vec3d pt : additionalPts) {
+					splinePtsList.add(pt.addVector(x, y, 0.0D));
+				}
+				//TODO
 			}
 		}
 		splinePtsList.add(p2);

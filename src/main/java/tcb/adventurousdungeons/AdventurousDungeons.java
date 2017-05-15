@@ -16,6 +16,7 @@ import tcb.adventurousdungeons.common.handler.DungeonEventHandler;
 import tcb.adventurousdungeons.common.handler.WorldEventHandler;
 import tcb.adventurousdungeons.common.item.ItemAreaSelection;
 import tcb.adventurousdungeons.common.item.ItemComponentSelection;
+import tcb.adventurousdungeons.common.item.ItemSpline;
 import tcb.adventurousdungeons.common.storage.WorldStorageImpl;
 import tcb.adventurousdungeons.registries.DungeonComponentRegistry;
 import tcb.adventurousdungeons.registries.ItemRegistry;
@@ -36,7 +37,7 @@ public class AdventurousDungeons {
 		MessageRegistry.register();
 
 		ComponentDataSerializers.register();
-		
+
 		ScriptComponentRegistry.register();
 		ScriptComponentRegistry.registerGuiFactories();
 	}
@@ -49,6 +50,7 @@ public class AdventurousDungeons {
 		MinecraftForge.EVENT_BUS.register(WorldRenderHandler.class);
 		MinecraftForge.EVENT_BUS.register(ItemAreaSelection.SelectionRenderHandler.class);
 		MinecraftForge.EVENT_BUS.register(ItemComponentSelection.SelectionRenderHandler.class);
+		MinecraftForge.EVENT_BUS.register(ItemSpline.SelectionRenderHandler.class);
 		MinecraftForge.EVENT_BUS.register(DungeonEventHandler.class);
 	}
 
