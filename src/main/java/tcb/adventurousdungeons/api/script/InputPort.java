@@ -34,6 +34,13 @@ public class InputPort<T> extends Port<T> {
 
 	@Override
 	public boolean isCompatible(Port<?> connection) {
-		return connection instanceof OutputPort;
+		if(connection instanceof OutputPort) {
+			Class<?> type = connection.getDataType();
+			if(this.getDataType().isAssignableFrom(type) || type == Object.class || type.isInterface()) {
+				return true;
+			}
+			return false;
+		}
+		return false;
 	}
 }

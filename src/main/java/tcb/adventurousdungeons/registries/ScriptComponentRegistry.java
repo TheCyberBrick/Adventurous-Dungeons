@@ -84,6 +84,8 @@ import tcb.adventurousdungeons.api.script.impl.math.vec.MulVecSC;
 import tcb.adventurousdungeons.api.script.impl.math.vec.SubVecSC;
 import tcb.adventurousdungeons.api.script.impl.math.vec.ToVec3dSC;
 import tcb.adventurousdungeons.api.script.impl.math.vec.ToVec3iSC;
+import tcb.adventurousdungeons.api.script.impl.subscript.SubScriptImportSC;
+import tcb.adventurousdungeons.api.script.impl.subscript.SubScriptSC;
 import tcb.adventurousdungeons.api.script.impl.trigger.BlockActivateTriggerSC;
 import tcb.adventurousdungeons.api.script.impl.trigger.EntityAreaTriggerSC;
 import tcb.adventurousdungeons.api.script.impl.trigger.TickTriggerSC;
@@ -167,6 +169,10 @@ public class ScriptComponentRegistry implements IScriptComponentRegistry {
 		INSTANCE.register(new ResourceLocation(ModInfo.ID, "double_constant"), DoubleConstantSC.class);
 		INSTANCE.register(new ResourceLocation(ModInfo.ID, "bool_constant"), BoolConstantSC.class);
 		INSTANCE.register(new ResourceLocation(ModInfo.ID, "dir_constant"), DirectionConstantSC.class);
+
+		//Sub script
+		INSTANCE.register(new ResourceLocation(ModInfo.ID, "sub_script"), SubScriptSC.class);
+		INSTANCE.register(new ResourceLocation(ModInfo.ID, "sub_script_import"), SubScriptImportSC.class);
 
 		//Misc
 		INSTANCE.register(new ResourceLocation(ModInfo.ID, "dungeon_area"), DungeonAreaSC.class);
@@ -253,6 +259,9 @@ public class ScriptComponentRegistry implements IScriptComponentRegistry {
 		INSTANCE.registerFactoryGui(BlockStateConstantSC.class, new BlockStateConstantSC.GuiFactory());
 		INSTANCE.registerFactoryGui(DungeonComponentConstantSC.class, new DungeonComponentConstantSC.GuiFactory());
 		INSTANCE.registerFactoryGui(ItemStackConstantSC.class, new ItemStackConstantSC.GuiFactory());
+
+		//Sub script	
+		INSTANCE.registerFactoryGui(SubScriptSC.class, new SubScriptSC.GuiFactory());
 
 		//Misc
 		registerSimpleFactoryGui(DungeonAreaSC.class, (s, n) -> new DungeonAreaSC(s, n));

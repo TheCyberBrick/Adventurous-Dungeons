@@ -46,33 +46,43 @@ import tcb.adventurousdungeons.api.script.gui.GuiScriptComponent;
 import tcb.adventurousdungeons.api.script.impl.constants.BlockStateConstantSC;
 import tcb.adventurousdungeons.api.script.impl.constants.DungeonComponentConstantSC;
 import tcb.adventurousdungeons.api.script.impl.constants.ItemStackConstantSC;
+import tcb.adventurousdungeons.api.script.impl.subscript.SubScriptImportSC;
+import tcb.adventurousdungeons.api.script.impl.subscript.SubScriptSC;
 import tcb.adventurousdungeons.common.item.ItemComponentSelection;
 import tcb.adventurousdungeons.common.network.common.MessageEditDungeonScript;
 import tcb.adventurousdungeons.util.CatmullRomSpline;
 
 public class GuiEditScript extends GuiScreen {
-	private final Script script;
-	private final IDungeon dungeon;
-	private final ScriptDC dungeonScriptComponent;
-	private final LinkedHashMap<IScriptComponent, GuiScriptComponent> components = new LinkedHashMap<>();
+	protected final GuiScreen parent;
+	protected final Script script;
+	protected final IDungeon dungeon;
+	protected final ScriptDC dungeonScriptComponent;
+	protected final SubScriptSC subScriptComponent;
+	protected final LinkedHashMap<IScriptComponent, GuiScriptComponent> components = new LinkedHashMap<>();
 
-	private float x, xOffset, y, yOffset;
-	private boolean dragging = false;
+	protected float x, xOffset, y, yOffset;
+	protected boolean dragging = false;
 
-	private boolean selecting;
-	private float selectionX, selectionY;
+	protected boolean selecting;
+	protected float selectionX, selectionY;
 
-	private ScaledResolution res;
+	protected ScaledResolution res;
 
-	private float scale = 1.0F;
+	protected float scale = 1.0F;
 
-	private OutputPort<?> splineDraggingPort;
-	private int splineDraggingCtrlPoint;
+	protected OutputPort<?> splineDraggingPort;
+	protected int splineDraggingCtrlPoint;
 
-	public GuiEditScript(IDungeon dungeon, ScriptDC dungeonScriptComponent, Script script) {
+	public GuiEditScript(@Nullable GuiScreen parent, IDungeon dungeon, ScriptDC dungeonScriptComponent, Script script, @Nullable SubScriptSC subScriptComponent) {
+		this.parent = parent;
 		this.script = script;
 		this.dungeon = dungeon;
 		this.dungeonScriptComponent = dungeonScriptComponent;
+		this.subScriptComponent = subScriptComponent;
+
+		/*IScriptComponent comp;
+		this.script.addComponent(comp = new SubScriptSC(this.script, "Sub-Script", ImmutableList.of("in_0", "in_1", "in_2", "in_3", "in_4"), ImmutableList.of()));
+		comp.initPorts();*/
 
 		//this.script.addComponent(new BlockActivateTriggerSC(this.script, "block_activate"));
 		//this.script.addComponent(new SetBlocksSC(this.script, "set_blocks"));
@@ -125,6 +135,10 @@ public class GuiEditScript extends GuiScreen {
 		this.buttonList.add(new GuiButton(2, this.res.getScaledWidth() - 80, this.res.getScaledHeight() - 60, 78, 18, "Import block"));
 		this.buttonList.add(new GuiButton(3, this.res.getScaledWidth() - 80, this.res.getScaledHeight() - 80, 78, 18, "Import item"));
 		this.buttonList.add(new GuiButton(4, this.res.getScaledWidth() - 80, this.res.getScaledHeight() - 100, 78, 18, "Add script component"));
+
+		GuiButton buttonImport;
+		this.buttonList.add(buttonImport = new GuiButton(5, this.res.getScaledWidth() - 80, this.res.getScaledHeight() - 120, 78, 18, "Add sub-script import"));
+		buttonImport.enabled = this.subScriptComponent != null;
 
 		this.selecting = false;
 		this.dragging = false;
@@ -458,6 +472,10 @@ public class GuiEditScript extends GuiScreen {
 				}
 			}
 		}
+
+		if(keyCode == Keyboard.KEY_ESCAPE) {
+			this.mc.displayGuiScreen(this.parent);
+		}
 	}
 
 
@@ -586,65 +604,101 @@ public class GuiEditScript extends GuiScreen {
 		super.actionPerformed(button);
 
 		if(button.id == 0) {
-			AdventurousDungeons.getNetwork().sendToServer(MessageEditDungeonScript.createServerbound(this.dungeon.getID(), this.dungeonScriptComponent.getID(), this.script));
+			this.saveScript();
 		}
 
 		if(button.id == 1) {
-			EntityPlayer player = this.mc.player;
-			if(player != null) {
-				ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
-				if(stack != null && stack.getItem() instanceof ItemComponentSelection) {
-					ILocalDungeonComponent selected = ((ItemComponentSelection)stack.getItem()).getSelectedComponent(player.world, stack);
-					if(selected == null) {
-						this.mc.ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation(ModInfo.ID + ".gui.no_component_selection"));
-					} else if(selected.getDungeon() != this.dungeon) {
-						this.mc.ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation(ModInfo.ID + ".gui.component_wrong_dungeon"));
-					} else {
-						IDungeonScriptComponent component = new DungeonComponentConstantSC(this.script, selected.getName(), selected);
-						this.addComponent(component);
-						component.setGuiX((this.res.getScaledWidth() / 2 - this.x) / this.scale);
-						component.setGuiY((this.res.getScaledHeight() / 2 - this.y) / this.scale);
-					}
-				} else {
-					this.mc.ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation(ModInfo.ID + ".gui.no_component_selection_item"));
-				}
-			}
+			this.addSelectedDungeonComponent();
 		}
 
 		if(button.id == 2) {
-			EntityPlayer player = this.mc.player;
-			if(player != null) {
-				RayTraceResult ray = player.world.rayTraceBlocks(player.getPositionEyes(1), player.getPositionEyes(1).add(player.getLookVec().scale(6)), true);
-				IDungeonScriptComponent component;
-				IBlockState block;
-				if(ray != null && ray.typeOfHit == RayTraceResult.Type.BLOCK) {
-					block = player.world.getBlockState(ray.getBlockPos());
-				} else {
-					block = Blocks.AIR.getDefaultState();
-				}
-				this.addComponent(component = new BlockStateConstantSC(this.script, block.getBlock().getLocalizedName(), block));
-				component.setGuiX((this.res.getScaledWidth() / 2 - this.x) / this.scale);
-				component.setGuiY((this.res.getScaledHeight() / 2 - this.y) / this.scale);
-			}
+			this.addSelectedBlock();
 		}
 
 		if(button.id == 3) {
-			EntityPlayer player = this.mc.player;
-			if(player != null) {
-				ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
-				if(stack != null) {
-					IDungeonScriptComponent component = new ItemStackConstantSC(this.script, stack.getDisplayName(), stack);
-					component.setGuiX((this.res.getScaledWidth() / 2 - this.x) / this.scale);
-					component.setGuiY((this.res.getScaledHeight() / 2 - this.y) / this.scale);
-					this.addComponent(component);
-				} else {
-					this.mc.ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation(ModInfo.ID + ".gui.no_held_item"));
-				}
-			}
+			this.addSelectedItemStack();
 		}
 
 		if(button.id == 4) {
-			this.mc.displayGuiScreen(new GuiAddScriptComponents(this, this.script, (this.res.getScaledWidth() / 2 - this.x) / this.scale, (this.res.getScaledHeight() / 2 - this.y) / this.scale));
+			this.addNewComponent();
 		}
+
+		if(button.id == 5) {
+			this.addSubScriptImport();
+		}
+	}
+
+	protected void saveScript() {
+		if(this.subScriptComponent == null) {
+			AdventurousDungeons.getNetwork().sendToServer(MessageEditDungeonScript.createServerbound(this.dungeon.getID(), this.dungeonScriptComponent.getID(), this.script));
+		} else {
+			this.subScriptComponent.setSubScript(this.script);
+		}
+	}
+
+	protected void addSelectedDungeonComponent() {
+		EntityPlayer player = this.mc.player;
+		if(player != null) {
+			ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
+			if(stack != null && stack.getItem() instanceof ItemComponentSelection) {
+				ILocalDungeonComponent selected = ((ItemComponentSelection)stack.getItem()).getSelectedComponent(player.world, stack);
+				if(selected == null) {
+					this.mc.ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation(ModInfo.ID + ".gui.no_component_selection"));
+				} else if(selected.getDungeon() != this.dungeon) {
+					this.mc.ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation(ModInfo.ID + ".gui.component_wrong_dungeon"));
+				} else {
+					IDungeonScriptComponent component = new DungeonComponentConstantSC(this.script, selected.getName(), selected);
+					this.addComponent(component);
+					component.setGuiX((this.res.getScaledWidth() / 2 - this.x) / this.scale);
+					component.setGuiY((this.res.getScaledHeight() / 2 - this.y) / this.scale);
+				}
+			} else {
+				this.mc.ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation(ModInfo.ID + ".gui.no_component_selection_item"));
+			}
+		}
+	}
+
+	protected void addSelectedBlock() {
+		EntityPlayer player = this.mc.player;
+		if(player != null) {
+			RayTraceResult ray = player.world.rayTraceBlocks(player.getPositionEyes(1), player.getPositionEyes(1).add(player.getLookVec().scale(6)), true);
+			IDungeonScriptComponent component;
+			IBlockState block;
+			if(ray != null && ray.typeOfHit == RayTraceResult.Type.BLOCK) {
+				block = player.world.getBlockState(ray.getBlockPos());
+			} else {
+				block = Blocks.AIR.getDefaultState();
+			}
+			this.addComponent(component = new BlockStateConstantSC(this.script, block.getBlock().getLocalizedName(), block));
+			component.setGuiX((this.res.getScaledWidth() / 2 - this.x) / this.scale);
+			component.setGuiY((this.res.getScaledHeight() / 2 - this.y) / this.scale);
+		}
+	}
+
+	protected void addSelectedItemStack() {
+		EntityPlayer player = this.mc.player;
+		if(player != null) {
+			ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
+			if(stack != null) {
+				IDungeonScriptComponent component = new ItemStackConstantSC(this.script, stack.getDisplayName(), stack);
+				component.setGuiX((this.res.getScaledWidth() / 2 - this.x) / this.scale);
+				component.setGuiY((this.res.getScaledHeight() / 2 - this.y) / this.scale);
+				this.addComponent(component);
+			} else {
+				this.mc.ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation(ModInfo.ID + ".gui.no_held_item"));
+			}
+		}
+	}
+
+	protected void addNewComponent() {
+		this.mc.displayGuiScreen(new GuiAddScriptComponents(this, this.script, (this.res.getScaledWidth() / 2 - this.x) / this.scale, (this.res.getScaledHeight() / 2 - this.y) / this.scale));
+	}
+
+	protected void addSubScriptImport() {
+		List<String> imports = this.subScriptComponent.getImports();
+		SubScriptImportSC component = new SubScriptImportSC(this.script, "Import", imports);
+		component.setGuiX((this.res.getScaledWidth() / 2 - this.x) / this.scale);
+		component.setGuiY((this.res.getScaledHeight() / 2 - this.y) / this.scale);
+		this.addComponent(component);
 	}
 }

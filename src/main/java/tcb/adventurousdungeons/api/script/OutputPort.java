@@ -15,7 +15,7 @@ public class OutputPort<T> extends Port<T> {
 
 	@Override
 	public boolean isCompatible(Port<?> connection) {
-		return connection instanceof InputPort;
+		return connection instanceof InputPort && connection.isCompatible(this);
 	}
 
 	/**

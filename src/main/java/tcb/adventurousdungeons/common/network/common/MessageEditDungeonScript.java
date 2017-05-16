@@ -121,7 +121,7 @@ public class MessageEditDungeonScript extends MessageBase {
 								((IDungeonScriptComponent)scriptComponent).setDungeonComponent((ScriptDC) component);
 							}
 						}
-						Minecraft.getMinecraft().displayGuiScreen(new GuiEditScript((IDungeon) localStorage, (ScriptDC) component, script));
+						Minecraft.getMinecraft().displayGuiScreen(new GuiEditScript(null, (IDungeon) localStorage, (ScriptDC) component, script, null));
 					}
 				}
 			}
