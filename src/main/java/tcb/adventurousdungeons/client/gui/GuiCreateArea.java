@@ -72,19 +72,19 @@ public class GuiCreateArea extends GuiScreen {
 		EntityPlayer player = Minecraft.getMinecraft().player;
 		ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
 		if(stack == null || stack.getItem() instanceof ItemAreaSelection == false) {
-			Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation(ModInfo.ID + ".gui.no_area_selection_item"));
+			Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation("gui." + ModInfo.ID + ".no_area_selection_item"));
 			return;
 		}
 
 		if(this.componentNameField.getText().length() < 3 || this.componentNameField.getText().length() > 64) {
-			Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation(ModInfo.ID + ".gui.component_name_too_long_short"));
+			Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation("gui." + ModInfo.ID + ".component_name_too_long_short"));
 			return;
 		}
 
 		Vec3d[] points = ((ItemAreaSelection)stack.getItem()).getSelectionPoints(stack);
 
 		if(points[0] == null || points[1] == null) {
-			Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation(ModInfo.ID + ".gui.not_enough_selections"));
+			Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation("gui." + ModInfo.ID + ".not_enough_selections"));
 			return;
 		}
 
@@ -103,7 +103,7 @@ public class GuiCreateArea extends GuiScreen {
 		}
 
 		if(dungeon == null) {
-			Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation(ModInfo.ID + ".gui.no_dungeon"));
+			Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation("gui." + ModInfo.ID + ".no_dungeon"));
 			return;
 		}
 

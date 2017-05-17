@@ -82,3 +82,24 @@ script_component.adventurous_dungeons.iterable=Create Iterable
 script_component.adventurous_dungeons.duplicator=Duplicator
 script_component.adventurous_dungeons.create_aabb=Create AABB
 script_component.adventurous_dungeons.get_block_state=Get Block
+
+### Gui
+gui.adventurous_dungeons.exit_not_saved=§4Exit without saving?
+gui.adventurous_dungeons.no_component_selection=No dungeon component selected
+gui.adventurous_dungeons.component_wrong_dungeon=Dungeon component is in wrong dungeon
+gui.adventurous_dungeons.no_component_selection_item=Not holding a component selection item
+gui.adventurous_dungeons.component_name_too_long_short=Component name is too long or too short
+gui.adventurous_dungeons.invalid_double=Invalid double
+gui.adventurous_dungeons.invalid_int=Invalid integer
+gui.adventurous_dungeons.invalid_nr_range=Invalid range
+gui.adventurous_dungeons.no_area_selection_item=Not holding an area selection item
+gui.adventurous_dungeons.not_enough_selections=Not enough selection points
+gui.adventurous_dungeons.no_dungeon=Not in a dungeon
+gui.adventurous_dungeons.select_item_with_number=Select item with number
+
+### Items
+item.adventurous_dungeons.area_selection_item.name=Area Selection
+item.adventurous_dungeons.component_selection_item.name=Component Selection
+item.adventurous_dungeons.script_editor.name=Script Editor
+item.adventurous_dungeons.spline_item.name=Spline
+item.adventurous_dungeons.test_item.name=Test Item

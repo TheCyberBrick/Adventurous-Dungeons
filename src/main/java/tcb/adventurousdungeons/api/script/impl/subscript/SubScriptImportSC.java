@@ -32,6 +32,16 @@ public class SubScriptImportSC extends DungeonScriptComponent {
 	}
 
 	@Override
+	protected boolean hasProgramFlowInput() {
+		return false;
+	}
+
+	@Override
+	protected boolean hasProgramFlowOutput() {
+		return true;
+	}
+	
+	@Override
 	protected void createPorts() {
 		for(String im : this.imports) {
 			this.out(im, Object.class);

@@ -4,7 +4,6 @@ import java.util.function.Consumer;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.nbt.NBTTagCompound;
@@ -122,7 +121,7 @@ public class IntConstantSC extends DungeonScriptComponent {
 			try {
 				return new IntConstantSC(script, name, Integer.parseInt(inNum));
 			} catch(NumberFormatException ex) { 
-				this.mc.ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation(ModInfo.ID + ".gui.invalid_int"));
+				this.mc.ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation("gui." + ModInfo.ID + ".invalid_int"));
 			}
 			return null;
 		}

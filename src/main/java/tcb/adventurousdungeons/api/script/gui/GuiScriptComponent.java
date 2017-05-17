@@ -10,6 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import tcb.adventurousdungeons.api.script.IDungeonScriptComponent;
 import tcb.adventurousdungeons.api.script.IScriptComponentCreationGuiFactory;
@@ -193,17 +194,22 @@ public class GuiScriptComponent extends Gui {
 			this.setY(newY);
 		}
 
-		GlStateManager.pushMatrix();
-		GlStateManager.translate(this.getX(), this.getY(), 0);
+		ScaledResolution res = new ScaledResolution(this.gui.mc);
 
-		this.renderComponent(partialTicks);
-
-		GlStateManager.popMatrix();
-
-		if(this.isAdditionalInfoOpen()) {
+		if(this.getX() + this.getWidth() >= -this.gui.getX() / this.gui.getScale() && this.getY() + this.getHeight() >= -this.gui.getY() / this.gui.getScale()
+				&& this.getX() <= (-this.gui.getX() + res.getScaledWidth_double()) / this.gui.getScale() && this.getY() <= (-this.gui.getY() + res.getScaledHeight_double()) / this.gui.getScale()) {
 			GlStateManager.pushMatrix();
-			this.renderAdditionalInfo(partialTicks);
+			GlStateManager.translate(this.getX(), this.getY(), 0);
+
+			this.renderComponent(partialTicks);
+
 			GlStateManager.popMatrix();
+
+			if(this.isAdditionalInfoOpen()) {
+				GlStateManager.pushMatrix();
+				this.renderAdditionalInfo(partialTicks);
+				GlStateManager.popMatrix();
+			}
 		}
 	}
 

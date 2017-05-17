@@ -75,7 +75,7 @@ public class GuiEditDungeonComponent extends GuiScreen {
 			if(this.componentNameField.getText().length() >= 3 && this.componentNameField.getText().length() <= 64) {
 				AdventurousDungeons.getNetwork().sendToServer(new MessageSetComponentName(this.component, this.componentNameField.getText()));
 			} else {
-				Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation(ModInfo.ID + ".gui.component_name_too_long_short"));
+				Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation("gui." + ModInfo.ID + ".component_name_too_long_short"));
 			}
 		}
 

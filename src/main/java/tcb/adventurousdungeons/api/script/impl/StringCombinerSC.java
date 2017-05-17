@@ -136,12 +136,12 @@ public class StringCombinerSC extends DungeonScriptComponent {
 			try {
 				int num = Integer.parseInt(inNum);
 				if(num <= 1) {
-					this.mc.ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation(ModInfo.ID + ".gui.invalid_nr_range"));
+					this.mc.ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation("gui." + ModInfo.ID + ".invalid_nr_range"));
 					return null;
 				}
 				return new StringCombinerSC(script, name, num);
 			} catch(NumberFormatException ex) { 
-				this.mc.ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation(ModInfo.ID + ".gui.invalid_int"));
+				this.mc.ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation("gui." + ModInfo.ID + ".invalid_int"));
 			}
 			return null;
 		}

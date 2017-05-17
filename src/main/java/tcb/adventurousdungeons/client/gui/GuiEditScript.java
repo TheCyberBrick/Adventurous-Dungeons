@@ -1,5 +1,10 @@
 package tcb.adventurousdungeons.client.gui;
 
+import java.awt.Toolkit;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -9,24 +14,32 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.activation.DataHandler;
 import javax.annotation.Nullable;
 
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
+import com.google.common.collect.ImmutableList;
+
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.GlStateManager.DestFactor;
 import net.minecraft.client.renderer.GlStateManager.SourceFactor;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompressedStreamTools;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
@@ -73,6 +86,8 @@ public class GuiEditScript extends GuiScreen {
 	protected OutputPort<?> splineDraggingPort;
 	protected int splineDraggingCtrlPoint;
 
+	protected GuiTextField subScriptComponentNameField;
+
 	public GuiEditScript(@Nullable GuiScreen parent, IDungeon dungeon, ScriptDC dungeonScriptComponent, Script script, @Nullable SubScriptSC subScriptComponent) {
 		this.parent = parent;
 		this.script = script;
@@ -111,6 +126,18 @@ public class GuiEditScript extends GuiScreen {
 		//this.script.initPorts();
 	}
 
+	public float getX() {
+		return this.x;
+	}
+
+	public float getY() {
+		return this.y;
+	}
+
+	public float getScale() {
+		return this.scale;
+	}
+
 	@Override
 	public boolean doesGuiPauseGame() {
 		return false;
@@ -135,17 +162,24 @@ public class GuiEditScript extends GuiScreen {
 		this.buttonList.add(new GuiButton(2, this.res.getScaledWidth() - 80, this.res.getScaledHeight() - 60, 78, 18, "Import block"));
 		this.buttonList.add(new GuiButton(3, this.res.getScaledWidth() - 80, this.res.getScaledHeight() - 80, 78, 18, "Import item"));
 		this.buttonList.add(new GuiButton(4, this.res.getScaledWidth() - 80, this.res.getScaledHeight() - 100, 78, 18, "Add script component"));
-
 		GuiButton buttonImport;
 		this.buttonList.add(buttonImport = new GuiButton(5, this.res.getScaledWidth() - 80, this.res.getScaledHeight() - 120, 78, 18, "Add sub-script import"));
 		buttonImport.enabled = this.subScriptComponent != null;
+		this.buttonList.add(new GuiButton(6, this.res.getScaledWidth() - 80, this.res.getScaledHeight() - 140, 78, 18, "Merge components"));
 
 		this.selecting = false;
 		this.dragging = false;
+
+		if(this.subScriptComponent != null) {
+			this.subScriptComponentNameField = new GuiTextField(0, this.fontRendererObj, 2, this.res.getScaledHeight() - 20, 80, 18);
+			this.subScriptComponentNameField.setText(this.subScriptComponent.getName());
+		}
 	}
 
 	public void addComponent(IScriptComponent component) {
-		component.initPorts();
+		if(component.getInputs().isEmpty() && component.getOutputs().isEmpty()) {
+			component.initPorts();
+		}
 		this.script.addComponent(component);
 		if(component instanceof IDungeonScriptComponent) {
 			this.components.put(component, ((IDungeonScriptComponent)component).getComponentGui(this));
@@ -216,6 +250,10 @@ public class GuiEditScript extends GuiScreen {
 					this.x = 0;
 					this.y = 0;
 				}
+			}
+
+			if(this.subScriptComponentNameField != null) {
+				this.subScriptComponentNameField.mouseClicked(mouseX, mouseY, mouseButton);
 			}
 		}
 	}
@@ -346,6 +384,15 @@ public class GuiEditScript extends GuiScreen {
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
 
+		if(this.subScriptComponent != null) {
+			this.fontRendererObj.drawString(this.subScriptComponent.getName(), 2, 2, 0xFFFFFFFF);
+		}
+
+		if(this.subScriptComponentNameField != null) {
+			this.fontRendererObj.drawString("Name:", 2, this.res.getScaledHeight() - 30, 0xFFFFFFFF);
+			this.subScriptComponentNameField.drawTextBox();
+		}
+
 		//Update dragged spline control points
 		if(this.splineDraggingPort != null && this.splineDraggingCtrlPoint >= 0) {
 			IDungeonScriptComponent splineDraggingComponent = (IDungeonScriptComponent) this.splineDraggingPort.getComponent();
@@ -407,10 +454,7 @@ public class GuiEditScript extends GuiScreen {
 		ListIterator<GuiScriptComponent> it = reversed.listIterator(reversed.size());
 		while(it.hasPrevious()) {
 			GuiScriptComponent component = it.previous();
-			if(component.getX() + component.getWidth() >= -this.x / this.scale && component.getY() + component.getHeight() >= -this.y / this.scale
-					&& component.getX() <= (-this.x + this.res.getScaledWidth_double()) / this.scale && component.getY() <= (-this.y + this.res.getScaledHeight_double()) / this.scale) {
-				component.render(partialTicks);
-			}
+			component.render(partialTicks);
 		}
 
 		if(this.selecting) {
@@ -431,7 +475,7 @@ public class GuiEditScript extends GuiScreen {
 
 		GlStateManager.popMatrix();
 
-		this.fontRendererObj.drawString("Select item with number", this.res.getScaledWidth() / 2 - 60, this.res.getScaledHeight() - 32, 0xFFFFFFFF);
+		this.fontRendererObj.drawString(I18n.format("gui." + ModInfo.ID + ".select_item_with_number"), this.res.getScaledWidth() / 2 - 60, this.res.getScaledHeight() - 32, 0xFFFFFFFF);
 	}
 
 	@Override
@@ -450,6 +494,10 @@ public class GuiEditScript extends GuiScreen {
 			} else {
 				component.update();
 			}
+		}
+
+		if(this.subScriptComponentNameField != null) {
+			this.subScriptComponentNameField.updateCursorCounter();
 		}
 	}
 
@@ -473,8 +521,121 @@ public class GuiEditScript extends GuiScreen {
 			}
 		}
 
+		if(GuiScreen.isKeyComboCtrlC(keyCode)) {
+			List<IScriptComponent> selectedComponents = new ArrayList<>();
+
+			//Get selected components
+			for(GuiScriptComponent gui : this.components.values()) {
+				if(gui.isSelected()) {
+					selectedComponents.add(gui.getComponent());
+				}
+			}
+
+			//Export components to NBT
+			NBTTagCompound nbt = Script.exportComponents(selectedComponents);
+
+			//Write to byte array
+			ByteArrayOutputStream bao = new ByteArrayOutputStream();
+			CompressedStreamTools.writeCompressed(nbt, bao);
+
+			//Set clipboard
+			Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new DataHandler(bao.toByteArray(), "application/octet-stream"), null);
+		} else if(GuiScreen.isKeyComboCtrlV(keyCode)) {
+			Transferable transferable = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
+
+			//Find correct data flavor
+			for(DataFlavor flavor : transferable.getTransferDataFlavors()) {
+				if("application/octet-stream".equals(flavor.getMimeType())) {
+					try {
+						Object data = transferable.getTransferData(flavor);
+
+						if(data != null && data.getClass() == byte[].class) {
+							//Read NBT from bytes
+							ByteArrayInputStream bai = new ByteArrayInputStream((byte[]) data);
+							NBTTagCompound nbt = CompressedStreamTools.readCompressed(bai);
+
+							if(nbt != null) {
+								List<IScriptComponent> components = Script.importComponents(this.script, nbt, true);
+
+								if(!components.isEmpty()) {
+									//Calculate component offset to center
+									float minX = Float.MAX_VALUE;
+									float minY = Float.MAX_VALUE;
+									for(IScriptComponent component : components) {
+										if(component instanceof IDungeonScriptComponent) {
+											IDungeonScriptComponent dungeonScriptComponent = (IDungeonScriptComponent) component;
+											minX = Math.min(minX, dungeonScriptComponent.getGuiX());
+											minY = Math.min(minY, dungeonScriptComponent.getGuiY());
+										}
+									}
+
+									//Unselect all components
+									for(GuiScriptComponent gui : this.components.values()) {
+										gui.setSelected(false);
+									}
+
+									//Add components
+									for(IScriptComponent component : components) {
+										if(component instanceof IDungeonScriptComponent) {
+											IDungeonScriptComponent dungeonScriptComponent = (IDungeonScriptComponent) component;
+											dungeonScriptComponent.setGuiX((this.res.getScaledWidth() / 2 - this.x) / this.scale + dungeonScriptComponent.getGuiX() - minX);
+											dungeonScriptComponent.setGuiY((this.res.getScaledHeight() / 2 - this.y) / this.scale + dungeonScriptComponent.getGuiY() - minY);
+										}
+
+										this.addComponent(component);
+
+										//Select copied component
+										GuiScriptComponent gui = this.components.get(component);
+										if(gui != null) {
+											gui.setSelected(true);
+										}
+									}
+								}
+							}
+						}
+					} catch(Exception ex) { }
+				}
+			}
+		}
+
 		if(keyCode == Keyboard.KEY_ESCAPE) {
-			this.mc.displayGuiScreen(this.parent);
+			GuiYesNo guiYesNo = new GuiYesNo((result, id) -> {
+				int mouseX = Mouse.getX();
+				int mouseY = Mouse.getY();
+				if(result) {
+					this.mc.displayGuiScreen(this.parent);
+				} else {
+					this.mc.displayGuiScreen(this);
+				}
+				Mouse.setCursorPosition(mouseX, mouseY);
+			}, new TextComponentTranslation("gui." + ModInfo.ID + ".exit_not_saved").getFormattedText(), "", 0) {
+				@Override
+				public void initGui() {
+					super.initGui();
+					this.setButtonDelay(20);
+					this.buttonList.get(1).enabled = true;
+				}
+
+				@Override
+				protected void keyTyped(char typedChar, int keyCode) throws IOException {
+					super.keyTyped(typedChar, keyCode);
+
+					if(keyCode == Keyboard.KEY_ESCAPE) {
+						int mouseX = Mouse.getX();
+						int mouseY = Mouse.getY();
+						this.mc.displayGuiScreen(GuiEditScript.this);
+						Mouse.setCursorPosition(mouseX, mouseY);
+					}
+				}
+			};
+			int mouseX = Mouse.getX();
+			int mouseY = Mouse.getY();
+			this.mc.displayGuiScreen(guiYesNo);
+			Mouse.setCursorPosition(mouseX, mouseY);
+		} else {
+			if(this.subScriptComponentNameField != null && this.subScriptComponentNameField.isFocused()) {
+				this.subScriptComponentNameField.textboxKeyTyped(typedChar, keyCode);
+			}
 		}
 	}
 
@@ -626,6 +787,10 @@ public class GuiEditScript extends GuiScreen {
 		if(button.id == 5) {
 			this.addSubScriptImport();
 		}
+
+		if(button.id == 6) {
+			this.mergeSelectedComponents();
+		}
 	}
 
 	protected void saveScript() {
@@ -633,19 +798,21 @@ public class GuiEditScript extends GuiScreen {
 			AdventurousDungeons.getNetwork().sendToServer(MessageEditDungeonScript.createServerbound(this.dungeon.getID(), this.dungeonScriptComponent.getID(), this.script));
 		} else {
 			this.subScriptComponent.setSubScript(this.script);
+			this.subScriptComponent.setName(this.subScriptComponentNameField.getText());
 		}
+		this.mc.displayGuiScreen(this.parent);
 	}
 
 	protected void addSelectedDungeonComponent() {
 		EntityPlayer player = this.mc.player;
 		if(player != null) {
 			ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
-			if(stack != null && stack.getItem() instanceof ItemComponentSelection) {
+			if(!stack.isEmpty() && stack.getItem() instanceof ItemComponentSelection) {
 				ILocalDungeonComponent selected = ((ItemComponentSelection)stack.getItem()).getSelectedComponent(player.world, stack);
 				if(selected == null) {
-					this.mc.ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation(ModInfo.ID + ".gui.no_component_selection"));
+					this.mc.ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation("gui." + ModInfo.ID + ".no_component_selection"));
 				} else if(selected.getDungeon() != this.dungeon) {
-					this.mc.ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation(ModInfo.ID + ".gui.component_wrong_dungeon"));
+					this.mc.ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation("gui." + ModInfo.ID + ".component_wrong_dungeon"));
 				} else {
 					IDungeonScriptComponent component = new DungeonComponentConstantSC(this.script, selected.getName(), selected);
 					this.addComponent(component);
@@ -653,7 +820,7 @@ public class GuiEditScript extends GuiScreen {
 					component.setGuiY((this.res.getScaledHeight() / 2 - this.y) / this.scale);
 				}
 			} else {
-				this.mc.ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation(ModInfo.ID + ".gui.no_component_selection_item"));
+				this.mc.ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation("gui." + ModInfo.ID + ".no_component_selection_item"));
 			}
 		}
 	}
@@ -679,14 +846,10 @@ public class GuiEditScript extends GuiScreen {
 		EntityPlayer player = this.mc.player;
 		if(player != null) {
 			ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
-			if(stack != null) {
-				IDungeonScriptComponent component = new ItemStackConstantSC(this.script, stack.getDisplayName(), stack);
-				component.setGuiX((this.res.getScaledWidth() / 2 - this.x) / this.scale);
-				component.setGuiY((this.res.getScaledHeight() / 2 - this.y) / this.scale);
-				this.addComponent(component);
-			} else {
-				this.mc.ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation(ModInfo.ID + ".gui.no_held_item"));
-			}
+			IDungeonScriptComponent component = new ItemStackConstantSC(this.script, stack.getDisplayName(), stack);
+			component.setGuiX((this.res.getScaledWidth() / 2 - this.x) / this.scale);
+			component.setGuiY((this.res.getScaledHeight() / 2 - this.y) / this.scale);
+			this.addComponent(component);
 		}
 	}
 
@@ -700,5 +863,45 @@ public class GuiEditScript extends GuiScreen {
 		component.setGuiX((this.res.getScaledWidth() / 2 - this.x) / this.scale);
 		component.setGuiY((this.res.getScaledHeight() / 2 - this.y) / this.scale);
 		this.addComponent(component);
+	}
+
+	protected void mergeSelectedComponents() {
+		List<IScriptComponent> selectedComponents = new ArrayList<>();
+
+		float minX = Float.MAX_VALUE;
+		float minY = Float.MAX_VALUE;
+
+		//Get selected components
+		for(GuiScriptComponent gui : this.components.values()) {
+			if(gui.isSelected()) {
+				selectedComponents.add(gui.getComponent());
+				minX = Math.min(minX, gui.getX());
+				minY = Math.min(minY, gui.getY());
+			}
+		}
+
+		//Export components to new script
+		Script subScript = new Script();
+		List<IScriptComponent> copies = Script.importComponents(subScript, Script.exportComponents(selectedComponents), true);
+		for(IScriptComponent copy : copies) {
+			subScript.addComponent(copy);
+		}
+
+		//Offset all components to origin
+		for(IScriptComponent component : subScript.getComponents()) {
+			if(component instanceof IDungeonScriptComponent) {
+				IDungeonScriptComponent dungeonScriptComponent = (IDungeonScriptComponent) component;
+				dungeonScriptComponent.setGuiX(dungeonScriptComponent.getGuiX() - minX + 12);
+				dungeonScriptComponent.setGuiY(dungeonScriptComponent.getGuiY() - minY + 12);
+			}
+		}
+
+		//Add sub script component
+		//TODO Add GUI for inputs and outputs
+		SubScriptSC subScriptComponent = new SubScriptSC(this.script, "Sub-Script", ImmutableList.of(), ImmutableList.of());
+		subScriptComponent.setSubScript(subScript);
+		subScriptComponent.setGuiX((this.res.getScaledWidth() / 2 - this.x) / this.scale);
+		subScriptComponent.setGuiY((this.res.getScaledHeight() / 2 - this.y) / this.scale);
+		this.addComponent(subScriptComponent);
 	}
 }

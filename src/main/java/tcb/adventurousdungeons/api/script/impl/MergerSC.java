@@ -6,7 +6,6 @@ import java.util.function.Consumer;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.nbt.NBTTagCompound;
@@ -146,17 +145,17 @@ public class MergerSC extends DungeonScriptComponent {
 			try {
 				int num = Integer.parseInt(inNum);
 				if(num <= 1) {
-					this.mc.ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation(ModInfo.ID + ".gui.invalid_nr_range"));
+					this.mc.ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation("gui." + ModInfo.ID + ".invalid_nr_range"));
 					return null;
 				}
 				int numDefault = Integer.parseInt(inDefault);
 				if(numDefault < 0 || numDefault >= num) {
-					this.mc.ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation(ModInfo.ID + ".gui.invalid_nr_range"));
+					this.mc.ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation("gui." + ModInfo.ID + ".invalid_nr_range"));
 					return null;
 				}
 				return new MergerSC(script, name, num, numDefault);
 			} catch(NumberFormatException ex) { 
-				this.mc.ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation(ModInfo.ID + ".gui.invalid_int"));
+				this.mc.ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation("gui." + ModInfo.ID + ".invalid_int"));
 			}
 			return null;
 		}

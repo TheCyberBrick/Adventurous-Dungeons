@@ -15,13 +15,15 @@ import tcb.adventurousdungeons.common.storage.WorldStorageImpl;
 public final class DungeonEventHandler {
 	@SubscribeEvent
 	public static void onBlockRightClick(PlayerInteractEvent.RightClickBlock event) {
-		World world = event.getWorld();
-		IWorldStorage storage = WorldStorageImpl.getCapability(world);
-		BlockPos pos = event.getPos();
+		if(event.getHitVec() != null) {
+			World world = event.getWorld();
+			IWorldStorage storage = WorldStorageImpl.getCapability(world);
+			BlockPos pos = event.getPos();
 
-		List<IDungeon> dungeons = storage.getLocalStorageHandler().getLocalStorages(IDungeon.class, new AxisAlignedBB(pos), null);
-		for(IDungeon dungeon : dungeons) {
-			dungeon.fireEvent(new BlockActivateEvent(dungeon, event));
+			List<IDungeon> dungeons = storage.getLocalStorageHandler().getLocalStorages(IDungeon.class, new AxisAlignedBB(pos), null);
+			for(IDungeon dungeon : dungeons) {
+				dungeon.fireEvent(new BlockActivateEvent(dungeon, event));
+			}
 		}
 	}
 }
